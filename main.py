@@ -12,11 +12,15 @@ f.close()
 # Text to pandas.Dataframe  
 df1 = pd.DataFrame(text)
 df1 = df1.rename(columns={0: 'alltext'})
+df1["alltext"]= df1["alltext"].str.split("=", n = 2, expand = False)
+df1[['delete', 'label','text']] = pd.DataFrame(df1.alltext.tolist(), index= df1.index)
+df1 = df1[['text','label']]
+df1['text'] = df1['text'].str.replace('\t', '')
 print(df1)
 
 # Initialize the vectorizer
 tfidf_vectorizer = TfidfVectorizer()
-doc_vec = tfidf_vectorizer.fit_transform(df1['alltext'])
+doc_vec = tfidf_vectorizer.fit_transform(df1['text'])
 
 df2 = pd.DataFrame(doc_vec.toarray().transpose(),
                    index=tfidf_vectorizer.get_feature_names())
