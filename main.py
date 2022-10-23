@@ -17,6 +17,15 @@ f.close()
 df1 = pd.DataFrame(text)
 df1 = df1.rename(columns={0: 'alltext'})
 
+
+df1["alltext"] = df1["alltext"].str.replace(":)", "happy", regex=False)
+#df1["alltext"] = df1["alltext"].str.replace(":D", "happy", regex=False) # Testar sem isto depois
+#df1["alltext"] = df1["alltext"].str.replace(":-D", "happy", regex=False)
+df1["alltext"] = df1["alltext"].str.replace(":(", "sad", regex=False)
+df1["alltext"] = df1["alltext"].str.replace("):", "sad", regex=False)
+df1["alltext"] = df1["alltext"].str.replace(":-(", "sad", regex=False)
+df1["alltext"] = df1["alltext"].str.replace(":/", "indiferent", regex=False)
+
 # Divide labels and text
 df1["alltext"]= df1["alltext"].str.split("=", n = 2, expand = False)
 df1[['delete', 'label','text']] = pd.DataFrame(df1.alltext.tolist(), index= df1.index)
@@ -41,10 +50,10 @@ list_of_words = [
 ]
 top_words = [x.lower() for x in list_of_words]
 top_words = pd.value_counts(np.array(top_words))
-#print(top_words[0:20])
+print(top_words[0:5])
 
 # Initialize the vectorizer 
-stop_w_list = {'for', 'the', 'it', 'a', 'i', 'this', 'my', 'and', 'to', 'me'}
+stop_w_list = {'for', 'the', 'it', 'a', 'i', 'this','my', 'and', 'to', 'me', 'of', 'as'}
 tfidf_vectorizer = TfidfVectorizer(lowercase=True, ngram_range=(1,3), stop_words=stop_w_list)
 doc_vec = tfidf_vectorizer.fit_transform(df1['text'])
 #df2 = pd.DataFrame(doc_vec.toarray().transpose(),index=tfidf_vectorizer.get_feature_names())
@@ -62,7 +71,7 @@ X_train = tfidf_vectorizer.fit_transform(x_train)
 X_test = tfidf_vectorizer.transform(x_test)
 
 # Naive Bayes Model
-mnb = MultinomialNB(alpha = 0.2)
+mnb = MultinomialNB(alpha = 0.5)
 mnb.fit(X_train,y_train)
 
 # Results
