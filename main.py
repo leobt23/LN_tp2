@@ -2,18 +2,16 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import pandas as pd
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import KFold
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
 import numpy as np
-import nltk
-from sqlalchemy import column
+import nlkt
+import matplotlib.pyplot as plt
 
-
-
+#Lemmatize function
 def lemmatize_text(text):
     w_tokenizer = nltk.tokenize.WhitespaceTokenizer()
     lemmatizer = nltk.stem.WordNetLemmatizer()
     return str([lemmatizer.lemmatize(w) for w in w_tokenizer.tokenize(text)])
-
 
 # Get text from file
 text_dir = "train.txt"
@@ -68,6 +66,9 @@ print(top_words[0:30])
 
 df1['text'] = df1.text.apply(lemmatize_text)
 
+#Lemmatization
+df1['text'] = df1.text.apply(lemmatize_text)
+
 # Initialize the vectorizer 
 stop_w_list = {'for', 'the', 'it', 'a', 'i', 'this','my', 'and', 'to', 'me', 'of', 'as'}
 tfidf_vectorizer = TfidfVectorizer(lowercase=True, ngram_range=(1,3), stop_words=stop_w_list)
@@ -79,22 +80,39 @@ doc_vec = tfidf_vectorizer.fit_transform(df1['text'])
 
 # Splitting dataset into 80% training set and 20% test set
 kfold = KFold(5)
+accuracy_kfold = []
+accuracy_kfold2 = []
 for train_index, validate_index in kfold.split(df1['text'], df1['category_to_num']):
     x_train, x_test = df1['text'][train_index], df1['text'][validate_index]
     y_train, y_test = df1['category_to_num'][train_index], df1['category_to_num'][validate_index]
 
-#converting training features into numeric vector
-X_train = tfidf_vectorizer.fit_transform(x_train)
-#converting training labels into numeric vector
-X_test = tfidf_vectorizer.transform(x_test)
+    #converting training features into numeric vector
+    X_train = tfidf_vectorizer.fit_transform(x_train)
+    #converting training labels into numeric vector
+    X_test = tfidf_vectorizer.transform(x_test)
 
-# Naive Bayes Model
-mnb = MultinomialNB(alpha = 0.5)
-mnb.fit(X_train,y_train)
+    # Naive Bayes Model
+    mnb = MultinomialNB(alpha = 0.5)
+    mnb.fit(X_train,y_train)
 
-# Results
-result= mnb.predict(X_test)
-print(confusion_matrix(y_test, result))
-print(accuracy_score(y_test, result))
+    # Results
+    result= mnb.predict(X_test)
+    accuracy_kfold.append(accuracy_score(y_test, result))
+    
+    #Confusion matrix (CHECK IF WE CAN USE MATPLOTLIB)
+    cm = confusion_matrix(y_test, result)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+    disp.plot()
+    plt.show()
 
 
+print(accuracy_kfold)
+print(np.mean(accuracy_kfold))
+
+#Final training
+X = tfidf_vectorizer.fit_transform(df1['text'])
+y = df1['category_to_num']
+mnb.fit(X,y)
+#result= mnb.predict(X)
+#print(confusion_matrix(result, y))
+#print(accuracy_score(y, result))
