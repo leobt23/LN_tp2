@@ -4,7 +4,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
 import numpy as np
-import nlkt
+import nltk
 import matplotlib.pyplot as plt
 
 #Lemmatize function
@@ -64,10 +64,9 @@ top_words = [x.lower() for x in list_of_words]
 top_words = pd.value_counts(np.array(top_words))
 print(top_words[0:30])
 
-df1['text'] = df1.text.apply(lemmatize_text)
 
 #Lemmatization
-df1['text'] = df1.text.apply(lemmatize_text)
+#df1['text'] = df1.text.apply(lemmatize_text)
 
 # Initialize the vectorizer 
 stop_w_list = {'for', 'the', 'it', 'a', 'i', 'this','my', 'and', 'to', 'me', 'of', 'as'}
