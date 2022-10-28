@@ -62,7 +62,7 @@ list_of_words = [
 
 top_words = [x.lower() for x in list_of_words]
 top_words = pd.value_counts(np.array(top_words))
-print(top_words[0:30])
+#print(top_words[0:30])
 
 
 #Lemmatization
@@ -72,12 +72,14 @@ print(top_words[0:30])
 stop_w_list = {'for', 'the', 'it', 'a', 'i', 'this','my', 'and', 'to', 'me', 'of', 'as'}
 tfidf_vectorizer = TfidfVectorizer(lowercase=True, ngram_range=(1,3), stop_words=stop_w_list)
 
-doc_vec = tfidf_vectorizer.fit_transform(df1['text'])
+#doc_vec = tfidf_vectorizer.fit_transform(df1['text'])
 
 #df2 = pd.DataFrame(doc_vec.toarray().transpose(),index=tfidf_vectorizer.get_feature_names())
 
 
+
 # Splitting dataset into 80% training set and 20% test set
+"""
 kfold = KFold(5)
 accuracy_kfold = []
 accuracy_kfold2 = []
@@ -107,11 +109,30 @@ for train_index, validate_index in kfold.split(df1['text'], df1['category_to_num
 
 print(accuracy_kfold)
 print(np.mean(accuracy_kfold))
+"""
+
 
 #Final training
+mnb = MultinomialNB(alpha = 0.5)
 X = tfidf_vectorizer.fit_transform(df1['text'])
 y = df1['category_to_num']
 mnb.fit(X,y)
-#result= mnb.predict(X)
-#print(confusion_matrix(result, y))
-#print(accuracy_score(y, result))
+result= mnb.predict(X)
+result2 = []
+
+for i in result:
+    if(i == 1):
+        result2.append("=Poor=")
+    if(i == 2):
+        result2.append("=Unsatisfactory=")
+    if(i == 3):
+        result2.append("Good")
+    if(i == 4):
+        result2.append("=VeryGood=")
+    if(i == 5):
+        result2.append("=Excellent=")
+
+with open("results.txt", "w") as txt_file:
+    for line in result2:
+        txt_file.write("".join(line) + "\n") # works with any number of elements in a line
+

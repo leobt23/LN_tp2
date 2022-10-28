@@ -1,0 +1,6 @@
+Ter a certeza que corre através deste comando:
+python reviews.py –test test.txt –train train.txt > results.txt
+
+Dúvida: 
+É preciso mostrar a accuracy no output?
+O optput tem que aparecer linha a linha ou podem estar separados por um espaço? 
