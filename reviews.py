@@ -10,12 +10,12 @@ import sys
 
 # Get text from file
 text = sys.argv[2]
-f = open(text, 'r')
+f = open(text, 'r', encoding='utf-8', errors='ignore')
 text_1 = f.read().splitlines()
 f.close()
 
 text = sys.argv[4]
-f = open(text, 'r')
+f = open(text, 'r', encoding='utf-8', errors='ignore')
 text_2 = f.read().splitlines()
 f.close()
 
@@ -69,6 +69,39 @@ stop_w_list = {'for', 'the', 'it', 'a', 'i', 'this','my', 'and', 'to', 'me', 'of
 tfidf_vectorizer = TfidfVectorizer(lowercase=True, ngram_range=(1,3), stop_words=stop_w_list)
 
 
+# Splitting dataset into 80% training set and 20% test set
+"""
+kfold = KFold(5)
+accuracy_kfold = []
+accuracy_kfold2 = []
+for train_index, validate_index in kfold.split(df1['text'], df1['category_to_num']):
+    x_train, x_test = df1['text'][train_index], df1['text'][validate_index]
+    y_train, y_test = df1['category_to_num'][train_index], df1['category_to_num'][validate_index]
+
+    #converting training features into numeric vector
+    X_train = tfidf_vectorizer.fit_transform(x_train)
+    #converting training labels into numeric vector
+    X_test = tfidf_vectorizer.transform(x_test)
+
+    # Naive Bayes Model
+    mnb = MultinomialNB(alpha = 0.5)
+    mnb.fit(X_train,y_train)
+
+    # Results
+    result= mnb.predict(X_test)
+    accuracy_kfold.append(accuracy_score(y_test, result))
+    
+    #Confusion matrix (CHECK IF WE CAN USE MATPLOTLIB)
+    cm = confusion_matrix(y_test, result)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+    disp.plot()
+    plt.show()
+
+
+print(accuracy_kfold)
+print(np.mean(accuracy_kfold))
+"""
+
 #Final training
 
 df_train = preprocessing(text = train_text, flag_train=True)
@@ -89,7 +122,7 @@ for i in result:
     if(i == 2):
         result2.append("=Unsatisfactory=")
     if(i == 3):
-        result2.append("Good")
+        result2.append("=Good=")
     if(i == 4):
         result2.append("=VeryGood=")
     if(i == 5):
