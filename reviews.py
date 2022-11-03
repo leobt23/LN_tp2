@@ -7,6 +7,7 @@ import numpy as np
 import nltk
 import matplotlib.pyplot as plt
 import sys
+from sklearn.pipeline import make_pipeline
 
 # Get text from file
 text = sys.argv[2]
@@ -51,7 +52,7 @@ def preprocessing(text, flag_train):
         df1[['delete', 'label','text']] = pd.DataFrame(df1.alltext.tolist(), index= df1.index)
         df1 = df1[['text','label']]
     else:
-        df1[['text']] = pd.DataFrame(df1.alltext.tolist(), index= df1.index)
+        df1.rename(columns = {'alltext':'text'}, inplace = True)
 
     # Clean "\t"
     df1['text'] = df1['text'].str.replace('\t', '')
@@ -59,7 +60,6 @@ def preprocessing(text, flag_train):
     if(flag_train == True):
         # Categories to numbers
         df1['category_to_num']=df1['label'].map({'Poor':1,'Unsatisfactory':2,'Good':3,'VeryGood':4,'Excellent':5})
-
     # Remove pontuation
     df1['text'] = df1['text'].str.replace('[^a-zA-Z0-9\']', ' ', regex=True).str.strip()
     return df1
@@ -106,13 +106,12 @@ print(np.mean(accuracy_kfold))
 
 df_train = preprocessing(text = train_text, flag_train=True)
 df_test = preprocessing(text = test_text, flag_train=False)
-mnb = MultinomialNB(alpha = 0.5)
+mnb = make_pipeline(tfidf_vectorizer, MultinomialNB(alpha = 0.5))
 X = tfidf_vectorizer.fit_transform(df_train['text'])
 y = df_train['category_to_num']
-mnb.fit(X,y)
+mnb.fit(df_train['text'],df_train['category_to_num'])
 
-X_test = tfidf_vectorizer.fit_transform(df_train['text'])
-result= mnb.predict(X_test)
+result= mnb.predict(df_test['text'])
 
 result2 = []
 
